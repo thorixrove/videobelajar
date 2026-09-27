@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/organisms/Navbar.jsx";
 import HeroBanner from "../components/organisms/HeroBanner.jsx";
 import CourseSection from "../components/organisms/CourseSection.jsx";
@@ -9,6 +10,15 @@ import { userMenu } from "../data/navigation.js";
 
 export default function Home() {
   const navigate = useNavigate();
+  const { hash } = useLocation();
+
+  // Saat masuk ke Beranda lewat link "Kategori" dari halaman lain
+  // (mis. /#koleksi), scroll ke section koleksi setelah halaman render.
+  useEffect(() => {
+    if (!hash) return;
+    const target = document.querySelector(hash);
+    target?.scrollIntoView({ behavior: "smooth" });
+  }, [hash]);
 
   return (
     <div className="min-h-screen">

@@ -16,6 +16,21 @@ export const categories = [
   "Bisnis",
 ];
 
+// Digunakan oleh filter "Harga" di halaman Semua Produk.
+export const priceRanges = [
+  { id: "under-200", label: "Di bawah Rp 200K", test: (price) => price < 200000 },
+  { id: "200-300", label: "Rp 200K - Rp 300K", test: (price) => price >= 200000 && price <= 300000 },
+  { id: "above-300", label: "Di atas Rp 300K", test: (price) => price > 300000 },
+];
+
+// Digunakan oleh dropdown "Urutkan" di halaman Semua Produk.
+export const sortOptions = [
+  { value: "default", label: "Urutkan" },
+  { value: "price-asc", label: "Harga Terendah" },
+  { value: "price-desc", label: "Harga Tertinggi" },
+  { value: "rating-desc", label: "Rating Tertinggi" },
+];
+
 export const courses = [
   {
     id: 1,

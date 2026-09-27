@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { LuLogOut, LuMenu, LuX } from "react-icons/lu";
 import Logo from "../atoms/Logo.jsx";
 import UserDropdown from "../molecules/UserDropdown.jsx";
@@ -17,9 +18,12 @@ export default function Navbar({ variant = "auth", user, menuItems = [], onLogou
         {isApp && (
           <>
             <nav aria-label="Navigasi utama" className="hidden items-center gap-6 md:flex">
-              <a href="#koleksi" className="text-sm text-muted hover:text-ink">
+              <Link to="/#koleksi" className="text-sm text-muted hover:text-ink">
                 Kategori
-              </a>
+              </Link>
+              <Link to="/produk" className="text-sm text-muted hover:text-ink">
+                Semua Produk
+              </Link>
               <UserDropdown user={user} items={menuItems} onLogout={onLogout} />
             </nav>
 
@@ -39,13 +43,20 @@ export default function Navbar({ variant = "auth", user, menuItems = [], onLogou
 
       {isApp && mobileOpen && (
         <nav id="menu-mobile" aria-label="Menu seluler" className="border-t border-line bg-white md:hidden">
-          <a
-            href="#koleksi"
+          <Link
+            to="/#koleksi"
             onClick={() => setMobileOpen(false)}
             className="block border-b border-line px-4 py-3.5 text-[13px] text-muted"
           >
             Kategori
-          </a>
+          </Link>
+          <Link
+            to="/produk"
+            onClick={() => setMobileOpen(false)}
+            className="block border-b border-line px-4 py-3.5 text-[13px] text-muted"
+          >
+            Semua Produk
+          </Link>
           {menuItems.map((item) => (
             <button
               key={item.id}
