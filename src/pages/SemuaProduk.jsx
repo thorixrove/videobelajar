@@ -4,14 +4,12 @@ import Navbar from "../components/organisms/Navbar.jsx";
 import Footer from "../components/organisms/Footer.jsx";
 import ProductCatalog from "../components/organisms/ProductCatalog.jsx";
 import CourseFormModal from "../components/organisms/CourseFormModal.jsx";
-import { CURRENT_USER, categories } from "../data/courses.js";
-import { useCourses } from "../context/CoursesContext.jsx";
-import { userMenu } from "../data/navigation.js";
 import ConfirmModal from "../components/organisms/ConfirmModal.jsx";
+import { CURRENT_USER, categories } from "../data/courses.js";
+import { userMenu } from "../data/navigation.js";
 
-export default function SemuaProduk() {
+export default function SemuaProduk({ courses, onAddCourse, onUpdateCourse, onDeleteCourse }) {
     const navigate = useNavigate()
-    const { courses, addCourse, updateCourse, deleteCourse } = useCourses()
     const [modalOpen, setModalOpen] = useState(false)
     const [editingCourse, setEditingCourse] = useState(null)
     const [deletingCourse, setDeletingCourse] = useState(null)
@@ -33,9 +31,9 @@ export default function SemuaProduk() {
 
     const handleSubmit = (data) => {
         if (editingCourse) {
-            updateCourse(editingCourse.id, data)
+            onUpdateCourse(editingCourse.id, data)
         } else {
-            addCourse(data)
+            onAddCourse(data)
         }
         closeModal()
     }
@@ -45,7 +43,7 @@ export default function SemuaProduk() {
     }
 
     const confirmDelete = () => {
-        if (deletingCourse) deleteCourse(deletingCourse.id)
+        if (deletingCourse) onDeleteCourse(deletingCourse.id)
         setDeletingCourse(null)
     }
 
@@ -79,7 +77,7 @@ export default function SemuaProduk() {
                 onClose={closeModal}
             />
 
-                <ConfirmModal
+            <ConfirmModal
                 open={deletingCourse !== null}
                 title="Hapus Produk?"
                 message={`Produk "${deletingCourse?.title ?? ""}" akan dihapus. Lanjutkan?`}
