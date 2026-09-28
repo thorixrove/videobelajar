@@ -23,6 +23,13 @@ export const priceRanges = [
   { id: "above-300", label: "Di atas Rp 300K", test: (price) => price > 300000 },
 ];
 
+// Digunakan oleh filter "Durasi" di halaman Semua Produk.
+export const durationRanges = [
+  { id: "under-4", label: "Kurang dari 4 Jam", test: (duration) => duration < 4 },
+  { id: "4-8", label: "4 - 8 Jam", test: (duration) => duration >= 4 && duration <= 8 },
+  { id: "above-8", label: "Lebih dari 8 Jam", test: (duration) => duration > 8 },
+];
+
 // Digunakan oleh dropdown "Urutkan" di halaman Semua Produk.
 export const sortOptions = [
   { value: "default", label: "Urutkan" },
@@ -34,6 +41,7 @@ export const sortOptions = [
 export const courses = [
   {
     id: 1,
+    duration: 6,
     category: "Bisnis",
     title: "Big 4 Auditor Financial Analyst",
     description:
@@ -46,6 +54,7 @@ export const courses = [
   },
   {
     id: 2,
+    duration: 3,
     category: "Pemasaran",
     title: "Digital Marketing untuk Pemula",
     description:
@@ -58,6 +67,7 @@ export const courses = [
   },
   {
     id: 3,
+    duration: 10,
     category: "Desain",
     title: "Dasar UI/UX dengan Figma",
     description:
@@ -70,6 +80,7 @@ export const courses = [
   },
   {
     id: 4,
+    duration: 2,
     category: "Pengembangan Diri",
     title: "Public Speaking Percaya Diri",
     description:
@@ -82,6 +93,7 @@ export const courses = [
   },
   {
     id: 5,
+    duration: 5,
     category: "Bisnis",
     title: "Dasar Akuntansi untuk Startup",
     description:
@@ -94,6 +106,7 @@ export const courses = [
   },
   {
     id: 6,
+    duration: 4,
     category: "Desain",
     title: "Desain Grafis untuk Bisnis Kecil",
     description:
@@ -106,6 +119,7 @@ export const courses = [
   },
   {
     id: 7,
+    duration: 7,
     category: "Pemasaran",
     title: "Strategi Konten Media Sosial",
     description:
@@ -118,6 +132,7 @@ export const courses = [
   },
   {
     id: 8,
+    duration: 1.5,
     category: "Pengembangan Diri",
     title: "Manajemen Waktu dan Fokus",
     description:
@@ -130,6 +145,7 @@ export const courses = [
   },
   {
     id: 9,
+    duration: 9,
     category: "Bisnis",
     title: "Analisis Laporan Keuangan",
     description:

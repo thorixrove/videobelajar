@@ -55,7 +55,7 @@ export default function CourseFormModal({ open, categories, initialData, onSubmi
         return Object.keys(next).length === 0
     }
 
-    const hndaleSubmit = (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault()
         if (!validate()) return
 

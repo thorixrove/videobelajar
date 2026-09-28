@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
-import { LuPlus } from "react-icons/lu";
+import { LuChevronDown, LuPlus, LuSearch } from "react-icons/lu";
 import FilterSidebar from "../molecules/FilterSidebar.jsx";
 import ProductCard from "../molecules/ProductCard.jsx";
-import SelectInput from "../atoms/SelectInput.jsx";
 import Button from "../atoms/Button.jsx";
-import { priceRanges, sortOptions } from "../../data/courses.js";
+import { priceRanges, durationRanges, sortOptions } from "../../data/courses.js";
 
 
 const PAGE_SIZE = 6;
@@ -12,6 +11,8 @@ const PAGE_SIZE = 6;
 export default function ProductCatalog({ courses, categories, onAdd, onEdit, onDelete }) {
     const [selectedCategories, setSelectedCategories] = useState([])
     const [selectedPriceRanges, setSelectedPriceRanges] = useState([])
+    const [selectedDurations, setSelectedDurations] = useState([])
+    const [search, setSearch] = useState("")
     const [sort, setSort] = useState("default")
     const [page, setPage] = useState(1)
 
@@ -31,14 +32,38 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
         setPage(1)
     }
 
+    const toggleDuration = (id) => {
+        setSelectedDurations((prev) =>
+            prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
+        )
+        setPage(1)
+    }
+
     const resetFilters = () => {
         setSelectedCategories([])
         setSelectedPriceRanges([])
+        setSelectedDurations([])
+        setSearch("")
+        setSort("default")
+        setPage(1)
+    }
+
+    const handleSearchChange = (event) => {
+        setSearch(event.target.value)
         setPage(1)
     }
 
     const filtered = useMemo(() => {
         let result = courses
+
+        const query = search.trim().toLowerCase()
+        if (query) {
+            result = result.filter((course) =>
+                course.title.toLowerCase().includes(query) ||
+                course.category.toLowerCase().includes(query) ||
+                course.author.name.toLowerCase().includes(query)
+            )
+        }
 
         if (selectedCategories.length > 0) {
             result = result.filter((course) => selectedCategories.includes(course.category))
@@ -49,13 +74,18 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
             result = result.filter((course) => activeRanges.some((range) => range.test(course.price)))
         }
 
+        if (selectedDurations.length > 0) {
+            const activeRanges = durationRanges.filter((range) => selectedDurations.includes(range.id))
+            result = result.filter((course) => activeRanges.some((range) => range.test(course.duration)))
+        }
+
         const sorted = [...result]
         if (sort === "price-asc") sorted.sort((a, b) => a.price - b.price)
         if (sort === "price-desc") sorted.sort((a, b) => b.price - a.price)
         if (sort === "rating-desc") sorted.sort((a, b) => b.rating - a.rating)
 
         return sorted
-    }, [courses, selectedCategories, selectedPriceRanges, sort])
+    }, [courses, search, selectedCategories, selectedPriceRanges, selectedDurations, sort])
 
     const totalPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
     const currentPage = Math.min(page, totalPage)
@@ -87,20 +117,59 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
                     priceRanges={priceRanges}
                     selectedPriceRanges={selectedPriceRanges}
                     onTogglePrice={togglePriceRange}
+                    durationRanges={durationRanges}
+                    selectedDurations={selectedDurations}
+                    onToggleDuration={toggleDuration}
                     onReset={resetFilters}
                 />
 
                 <div className="flex-1">
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-xs text-muted md:text-sm">{filtered.length} produk ditemukan</p>
-                        <div className="w-44">
-                            <SelectInput
-                                label="Urutkan"
-                                name="sort"
-                                value={sort}
-                                onChange={(event) => setSort(event.target.value)}
-                                options={sortOptions}
-                            />
+
+                        <div className="flex w-full items-center gap-2 sm:w-auto">
+                            <div className="relative flex-1 sm:w-40 sm:flex-none">
+                                <label htmlFor="sort-course" className="sr-only">
+                                    Urutkan
+                                </label>
+                                <select
+                                    id="sort-course"
+                                    name="sort"
+                                    value={sort}
+                                    onChange={(event) => setSort(event.target.value)}
+                                    className="h-10 w-full appearance-none rounded-md border border-line bg-white pl-3 pr-9 text-sm text-ink focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+                                >
+                                    {sortOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <LuChevronDown
+                                    size={16}
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                />
+                            </div>
+
+                            <div className="relative flex-1 sm:w-56 sm:flex-none">
+                                <label htmlFor="search-course" className="sr-only">
+                                    Cari kelas
+                                </label>
+                                <input
+                                    id="search-course"
+                                    type="text"
+                                    value={search}
+                                    onChange={handleSearchChange}
+                                    placeholder="Cari Kelas"
+                                    className="h-10 w-full rounded-md border border-line bg-white pl-3 pr-9 text-sm text-ink placeholder:text-gray-400 focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+                                />
+                                <LuSearch
+                                    size={16}
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                />
+                            </div>
                         </div>
                     </div>
 
