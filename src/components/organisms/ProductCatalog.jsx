@@ -3,6 +3,7 @@ import { LuChevronDown, LuPlus, LuSearch } from "react-icons/lu";
 import FilterSidebar from "../molecules/FilterSidebar.jsx";
 import ProductCard from "../molecules/ProductCard.jsx";
 import Button from "../atoms/Button.jsx";
+import ConfirmModal from "./ConfirmModal.jsx";
 import { priceRanges, durationRanges, sortOptions } from "../../data/courses.js";
 
 
@@ -15,6 +16,7 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
     const [search, setSearch] = useState("")
     const [sort, setSort] = useState("default")
     const [page, setPage] = useState(1)
+    const [confirmResetOpen, setConfirmResetOpen] = useState(false)
 
     const filterableCategories = categories.filter((category) => category !== "Semua Kelas")
 
@@ -47,6 +49,12 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
         setSort("default")
         setPage(1)
     }
+
+    const handleConfirmReset = () => {
+        resetFilters()
+        setConfirmResetOpen(false)
+    }
+
 
     const handleSearchChange = (event) => {
         setSearch(event.target.value)
@@ -104,7 +112,7 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
                 </div>
 
                 <Button variant="primary" onClick={onAdd}>
-                    <LuPlus size={16} aria-hidden="true"/>
+                    <LuPlus size={16} aria-hidden="true" />
                     Tambah Produk
                 </Button>
             </div>
@@ -120,7 +128,7 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
                     durationRanges={durationRanges}
                     selectedDurations={selectedDurations}
                     onToggleDuration={toggleDuration}
-                    onReset={resetFilters}
+                    onReset={() => setConfirmResetOpen(true)}
                 />
 
                 <div className="flex-1">
@@ -201,6 +209,16 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
                     )}
                 </div>
             </div>
+
+            <ConfirmModal
+                open={confirmResetOpen}
+                title="Reset Semua?"
+                message="Semua filter, pencarian, dan urutan akan dikembalikan ke awal. Lanjutkan?"
+                confirmLabel="Ya"
+                cancelLabel="Tidak"
+                onConfirm={handleConfirmReset}
+                onCancel={() => setConfirmResetOpen(false)}
+            />
         </div>
 
 

@@ -17,7 +17,7 @@ const emptyForm = {
 
 export default function CourseFormModal({ open, categories, initialData, onSubmit, onClose }) {
     const [form, setForm] = useState(emptyForm)
-    const [error, setErrors] = useState({})
+    const [errors, setErrors] = useState({})
 
     useEffect(() => {
         if (!open) return

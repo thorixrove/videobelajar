@@ -4,14 +4,17 @@ import Navbar from "../components/organisms/Navbar.jsx";
 import Footer from "../components/organisms/Footer.jsx";
 import ProductCatalog from "../components/organisms/ProductCatalog.jsx";
 import CourseFormModal from "../components/organisms/CourseFormModal.jsx";
-import { CURRENT_USER, categories, courses as initialCourses } from "../data/courses.js";
+import { CURRENT_USER, categories } from "../data/courses.js";
+import { useCourses } from "../context/CoursesContext.jsx";
 import { userMenu } from "../data/navigation.js";
+import ConfirmModal from "../components/organisms/ConfirmModal.jsx";
 
 export default function SemuaProduk() {
     const navigate = useNavigate()
-    const [courses, setCourses] = useState(initialCourses)
+    const { courses, addCourse, updateCourse, deleteCourse } = useCourses()
     const [modalOpen, setModalOpen] = useState(false)
     const [editingCourse, setEditingCourse] = useState(null)
+    const [deletingCourse, setDeletingCourse] = useState(null)
 
     const openAddModal = () => {
         setEditingCourse(null)
@@ -30,19 +33,20 @@ export default function SemuaProduk() {
 
     const handleSubmit = (data) => {
         if (editingCourse) {
-            setCourses((prev) =>
-                prev.map((course) => (course.id === editingCourse.id ? { ...course, ...data } : course))
-            )
+            updateCourse(editingCourse.id, data)
         } else {
-            setCourses((prev) => [{ id: Date.now(), rating: 0, reviews: 0, ...data }, ...prev])
+            addCourse(data)
         }
         closeModal()
     }
 
     const handleDelete = (id) => {
-        if (window.confirm("Hapus produk in?")) {
-            setCourses((prev) => prev.filter((course) => course.id !== id))
-        }
+        setDeletingCourse(courses.find((course) => course.id === id) ?? null)
+    }
+
+    const confirmDelete = () => {
+        if (deletingCourse) deleteCourse(deletingCourse.id)
+        setDeletingCourse(null)
     }
 
 
@@ -74,7 +78,16 @@ export default function SemuaProduk() {
                 onSubmit={handleSubmit}
                 onClose={closeModal}
             />
+
+                <ConfirmModal
+                open={deletingCourse !== null}
+                title="Hapus Produk?"
+                message={`Produk "${deletingCourse?.title ?? ""}" akan dihapus. Lanjutkan?`}
+                confirmLabel="Ya"
+                cancelLabel="Tidak"
+                onConfirm={confirmDelete}
+                onCancel={() => setDeletingCourse(null)}
+            />
         </div>
     )
 }
-

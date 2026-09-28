@@ -12,7 +12,7 @@ function CheckboxItem({ label, checked, onChange }) {
       />
       <span
         className={`flex size-4 shrink-0 items-center justify-center rounded border transition-colors ${
-          checked ? "border-brand-green bg-brand-green" : "border-line bg-white"
+          checked ? "border-brand-green bg-brand-green" : " bg-white"
         }`}
       >
         {checked && <LuCheck size={11} strokeWidth={3} className="text-white" aria-hidden="true" />}

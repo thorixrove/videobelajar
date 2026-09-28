@@ -5,12 +5,14 @@ import HeroBanner from "../components/organisms/HeroBanner.jsx";
 import CourseSection from "../components/organisms/CourseSection.jsx";
 import NewsletterSection from "../components/organisms/NewsletterSection.jsx";
 import Footer from "../components/organisms/Footer.jsx";
-import { CURRENT_USER, HERO_IMAGE, NEWSLETTER_IMAGE, categories, courses } from "../data/courses.js";
+import { CURRENT_USER, HERO_IMAGE, NEWSLETTER_IMAGE, categories } from "../data/courses.js";
+import { useCourses } from "../context/CoursesContext.jsx";
 import { userMenu } from "../data/navigation.js";
 
 export default function Home() {
   const navigate = useNavigate();
   const { hash } = useLocation();
+  const { courses } = useCourses();
 
   // Saat masuk ke Beranda lewat link "Kategori" dari halaman lain
   // (mis. /#koleksi), scroll ke section koleksi setelah halaman render.
