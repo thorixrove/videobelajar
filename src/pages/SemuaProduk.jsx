@@ -8,11 +8,12 @@ import ConfirmModal from "../components/organisms/ConfirmModal.jsx";
 import { CURRENT_USER, categories } from "../data/courses.js";
 import { userMenu } from "../data/navigation.js";
 
-export default function SemuaProduk({ courses, onAddCourse, onUpdateCourse, onDeleteCourse }) {
+export default function SemuaProduk({ courses, loading, error, onRetry, onAddCourse, onUpdateCourse, onDeleteCourse }) {
     const navigate = useNavigate()
     const [modalOpen, setModalOpen] = useState(false)
     const [editingCourse, setEditingCourse] = useState(null)
     const [deletingCourse, setDeletingCourse] = useState(null)
+    const [actionError, setActionError] = useState("")
 
     const openAddModal = () => {
         setEditingCourse(null)
@@ -29,22 +30,35 @@ export default function SemuaProduk({ courses, onAddCourse, onUpdateCourse, onDe
         setEditingCourse(null)
     }
 
-    const handleSubmit = (data) => {
-        if (editingCourse) {
-            onUpdateCourse(editingCourse.id, data)
-        } else {
-            onAddCourse(data)
+    const handleSubmit = async (data) => {
+        setActionError("")
+        try {
+            if (editingCourse) {
+                await onUpdateCourse(editingCourse.id, data)
+            } else {
+                await onAddCourse(data)
+            }
+            closeModal()
+        } catch (err) {
+            setActionError(err.message)
+            closeModal()
         }
-        closeModal()
     }
 
     const handleDelete = (id) => {
         setDeletingCourse(courses.find((course) => course.id === id) ?? null)
     }
 
-    const confirmDelete = () => {
-        if (deletingCourse) onDeleteCourse(deletingCourse.id)
+    const confirmDelete = async () => {
+        const target = deletingCourse
         setDeletingCourse(null)
+        if (!target) return
+        setActionError("")
+        try {
+            await onDeleteCourse(target.id)
+        } catch (err) {
+            setActionError(err.message)
+        }
     }
 
 
@@ -61,6 +75,9 @@ export default function SemuaProduk({ courses, onAddCourse, onUpdateCourse, onDe
                 <ProductCatalog
                     courses={courses}
                     categories={categories}
+                    loading={loading}
+                    error={actionError || error}
+                    onRetry={onRetry}
                     onAdd={openAddModal}
                     onEdit={openEditModal}
                     onDelete={handleDelete}

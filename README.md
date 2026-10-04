@@ -1,7 +1,27 @@
 # videobelajar
 
-Website statis berbasis React untuk halaman **Login**, **Registrasi**, dan **Beranda**.
-Dibuat dengan Vite, React, React Router, dan Tailwind CSS. Tidak memakai backend.
+Website berbasis React untuk halaman **Login**, **Registrasi**, **Beranda**, dan **Semua Produk** (CRUD).
+Dibuat dengan Vite, React, React Router, Tailwind CSS, dan Axios. Data course diambil dari Firebase Realtime Database (REST API).
+
+## Konfigurasi API
+
+1. Buat file `.env` di root project.
+2. Isi `VITE_API_BASE_URL` dengan URL Firebase Realtime Database (tanpa `/` di akhir).
+3. Pastikan Rules database mengizinkan `.read` dan `.write` (test mode).
+4. Saat pertama kali dibuka dan database masih kosong, data awal dari `src/data/courses.js` otomatis dikirim ke Firebase.
+
+```
+src/
+├─ services/api/    axiosClient.js (base URL dari .env + interceptor), courseService.js (GET/ADD/UPDATE/DELETE)
+└─ hooks/           useCourses.js (state courses + loading/error + aksi CRUD)
+```
+
+| Operasi | Method | Endpoint |
+| ------- | ------ | -------- |
+| GET     | GET    | `/courses.json` |
+| ADD     | POST   | `/courses.json` |
+| UPDATE  | PATCH  | `/courses/{id}.json` |
+| DELETE  | DELETE | `/courses/{id}.json` |
 
 ## Menjalankan
 
@@ -23,7 +43,7 @@ npm run preview  # coba hasil build
 | `/register` | Registrasi|
 
 Alur: Registrasi → Login (dengan notifikasi berhasil) → Beranda. Tombol **Keluar** di menu akun kembali ke Login.
-Form divalidasi di sisi klien saja; tidak ada data yang dikirim ke server.
+Form login dan registrasi divalidasi di sisi klien saja; hanya data course yang dikirim ke API.
 
 ## Struktur (atomic design)
 
@@ -59,6 +79,7 @@ lalu tulis sebagai `/nama-file.jpg`).
 
 1. Push proyek ke GitHub.
 2. Di vercel.com pilih **Add New → Project**, lalu impor repository.
-3. Vercel mengenali Vite otomatis (build `npm run build`, output `dist`). Klik **Deploy**.
+3. Di **Environment Variables**, tambahkan `VITE_API_BASE_URL` dengan URL Firebase yang sama (file `.env` tidak ikut di-push).
+4. Vercel mengenali Vite otomatis (build `npm run build`, output `dist`). Klik **Deploy**.
 
 File `vercel.json` sudah disertakan agar membuka atau me-refresh `/login` dan `/register` langsung tidak 404.

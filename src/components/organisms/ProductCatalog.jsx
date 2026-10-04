@@ -9,7 +9,7 @@ import { priceRanges, durationRanges, sortOptions } from "../../data/courses.js"
 
 const PAGE_SIZE = 6;
 
-export default function ProductCatalog({ courses, categories, onAdd, onEdit, onDelete }) {
+export default function ProductCatalog({ courses, categories, loading, error, onRetry, onAdd, onEdit, onDelete }) {
     const [selectedCategories, setSelectedCategories] = useState([])
     const [selectedPriceRanges, setSelectedPriceRanges] = useState([])
     const [selectedDurations, setSelectedDurations] = useState([])
@@ -133,7 +133,9 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
 
                 <div className="flex-1">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-xs text-muted md:text-sm">{filtered.length} produk ditemukan</p>
+                        <p className="text-xs text-muted md:text-sm">
+                            {loading ? "Memuat produk..." : `${filtered.length} produk ditemukan`}
+                        </p>
 
                         <div className="flex w-full items-center gap-2 sm:w-auto">
                             <div className="relative flex-1 sm:w-40 sm:flex-none">
@@ -181,7 +183,20 @@ export default function ProductCatalog({ courses, categories, onAdd, onEdit, onD
                         </div>
                     </div>
 
-                    {visible.length === 0 ? (
+                    {error && (
+                        <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+                            <span>{error}</span>
+                            {onRetry && (
+                                <button type="button" onClick={onRetry} className="shrink-0 font-medium underline">
+                                    Muat ulang
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {loading ? (
+                        <p className="mt-10 text-center text-sm text-muted">Memuat produk...</p>
+                    ) : visible.length === 0 ? (
                         <p className="mt-10 text-center text-sm text-muted">Belum ada produk yang cocok.</p>
                     ) : (
                         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
