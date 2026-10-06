@@ -1,46 +1,50 @@
-import { useCallback, useEffect, useState } from "react";
-import * as courseService from "../services/api/courseService.js";
-import { courses as initialCourses } from "../data/courses.js";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addCourse as addCourseThunk,
+  deleteCourse as deleteCourseThunk,
+  fetchCourses,
+  updateCourse as updateCourseThunk,
+} from "../store/redux/coursesSlice.js";
 
-
+// Hook ini menjadi jembatan antara komponen dan Redux store.
+// Data dibaca dengan useSelector, aksi dikirim dengan dispatch.
+// Error dari CRUD dilempar kembali (unwrap) agar bisa ditangkap halaman.
 export default function useCourses() {
-    const [courses, setCourses] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState("")
+  const dispatch = useDispatch();
+  const courses = useSelector((state) => state.courses.items);
+  const loading = useSelector((state) => state.courses.loading);
+  const error = useSelector((state) => state.courses.error);
 
-    const fetchCourses= useCallback(async () => {
-        setLoading(true)
-        setError("")
-        try {
-            await courseService.seedCoursesIfNeeded(initialCourses)
-            setCourses(await courseService.getCourses())
-        } catch (error) {
-            setError(error.message)
-        } finally {
-            setLoading(false)
-        }
-    }, [])
+  const refetch = useCallback(() => dispatch(fetchCourses()), [dispatch]);
 
-    useEffect(() => {
-        fetchCourses()
-    }, [fetchCourses])
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
-    const addCourse = async (data) => {
-        const created = await courseService.addCourse(data)
-        setCourses((prev) => [created, ...prev])
+  const addCourse = async (data) => {
+    try {
+      await dispatch(addCourseThunk(data)).unwrap();
+    } catch (message) {
+      throw new Error(message);
     }
+  };
 
-    const updateCourse = async (id, data) => {
-        const updated = await courseService.updateCourse(id, data)
-        setCourses((prev) =>
-        prev.map((course) => (course.id === id ? { ...course, ...updated} : course)),
-        )
+  const updateCourse = async (id, data) => {
+    try {
+      await dispatch(updateCourseThunk({ id, data })).unwrap();
+    } catch (message) {
+      throw new Error(message);
     }
+  };
 
-    const deleteCourse = async (id) => {
-        await courseService.deleteCourse(id)
-        setCourses((prev) => prev.filter((course) => course.id !== id))
+  const deleteCourse = async (id) => {
+    try {
+      await dispatch(deleteCourseThunk(id)).unwrap();
+    } catch (message) {
+      throw new Error(message);
     }
+  };
 
-    return { courses, loading, error, refetch: fetchCourses, addCourse, updateCourse, deleteCourse };
+  return { courses, loading, error, refetch, addCourse, updateCourse, deleteCourse };
 }
