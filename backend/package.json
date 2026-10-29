@@ -1,0 +1,20 @@
+{
+  "name": "videobelajar-backend",
+  "version": "1.0.0",
+  "description": "Backend REST API videobelajar (Node.js + Express + MySQL)",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "db:test": "node src/testConnection.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5"
+  }
+}
