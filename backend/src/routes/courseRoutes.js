@@ -63,7 +63,7 @@ router.get(
     "/:id",
     asyncHandler(async (req, res) => {
         const id = parseId(req.params.id)
-        if (is === null) return res.status(400).json({ message: "id harus berupa bilangan bulat positif" })
+        if (id === null) return res.status(400).json({ message: "id harus berupa bilangan bulat positif" })
 
         const course = await courseService.getCourseById(id)
         if (!course) return res.status(404).json(notFound(id))

@@ -1,0 +1,764 @@
+{
+    "info": {
+        "name": "videobelajar API - Pengujian Endpoint /course",
+        "description": "Koleksi pengujian untuk REST API videobelajar (Langkah 4: Testing). Jalankan server dengan `npm start` dari folder backend, lalu jalankan koleksi ini lewat Collection Runner. Urutan request penting karena POST menyimpan id kelas baru ke variabel {{createdId}} yang dipakai request berikutnya.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000"
+        },
+        {
+            "key": "createdId",
+            "value": ""
+        }
+    ],
+    "item": [
+        {
+            "name": "1. GET (SELECT)",
+            "item": [
+                {
+                    "name": "GET semua kelas",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"total sama dengan jumlah data\", () => { const r = pm.response.json(); pm.expect(r.data).to.be.an(\"array\"); pm.expect(r.total).to.eql(r.data.length); });",
+                                    "pm.test(\"ada minimal 1 kelas dengan kategori dan tutor\", () => { const c = pm.response.json().data[0]; pm.expect(c).to.have.property(\"category\"); pm.expect(c.tutors).to.be.an(\"array\"); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course"
+                            ]
+                        },
+                        "description": "Mengambil semua kelas beserta kategori dan tutornya."
+                    }
+                },
+                {
+                    "name": "GET kelas berdasarkan id",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"id kelas = 1\", () => pm.expect(pm.response.json().data.id).to.eql(1));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "1"
+                            ]
+                        },
+                        "description": "Mengambil satu kelas berdasarkan id."
+                    }
+                },
+                {
+                    "name": "GET filter kategori",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"semua kelas berkategori 1\", () => pm.response.json().data.forEach((c) => pm.expect(c.course_category_id).to.eql(1)));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course?category_id=1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Filter kelas berdasarkan kategori (atribut lain)."
+                    }
+                },
+                {
+                    "name": "GET cari judul",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"judul memuat kata kunci\", () => { const data = pm.response.json().data; pm.expect(data.length).to.be.above(0); data.forEach((c) => pm.expect(c.title.toLowerCase()).to.include(\"marketing\")); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course?keyword=Marketing",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course"
+                            ],
+                            "query": [
+                                {
+                                    "key": "keyword",
+                                    "value": "Marketing"
+                                }
+                            ]
+                        },
+                        "description": "Pencarian kelas berdasarkan kata pada judul."
+                    }
+                },
+                {
+                    "name": "GET id tidak ada",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 404\", () => pm.response.to.have.status(404));",
+                                    "pm.test(\"ada pesan error\", () => pm.expect(pm.response.json().message).to.be.a(\"string\"));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/999999",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "999999"
+                            ]
+                        },
+                        "description": "Harus 404 karena id tidak ada."
+                    }
+                },
+                {
+                    "name": "GET id bukan angka",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/abc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "abc"
+                            ]
+                        },
+                        "description": "Harus 400 karena id tidak valid."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. POST (INSERT)",
+            "item": [
+                {
+                    "name": "POST tambah kelas (valid)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                                    "pm.test(\"id kelas baru tersimpan\", () => { const id = pm.response.json().data.id; pm.expect(id).to.be.a(\"number\"); pm.collectionVariables.set(\"createdId\", id); });",
+                                    "pm.test(\"data sesuai yang dikirim\", () => { const d = pm.response.json().data; pm.expect(d.title).to.eql(\"Kelas Uji Postman\"); pm.expect(d.price).to.eql(120000); pm.expect(d.tutors.length).to.eql(2); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course"
+                            ]
+                        },
+                        "description": "Menambah kelas baru dengan 2 tutor. id kelas disimpan ke {{createdId}}.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"course_category_id\": 5,\n  \"title\": \"Kelas Uji Postman\",\n  \"description\": \"Kelas ini dibuat saat pengujian Postman.\",\n  \"price\": 120000,\n  \"original_price\": 200000,\n  \"duration_minutes\": 60,\n  \"is_published\": true,\n  \"tutor_ids\": [\n    1,\n    2\n  ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "POST body kosong (tidak valid)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                                    "pm.test(\"ada daftar errors\", () => pm.expect(pm.response.json().errors.length).to.be.above(0));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course"
+                            ]
+                        },
+                        "description": "Harus 400 dan menampilkan daftar field yang wajib diisi.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "POST field terlarang",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course"
+                            ]
+                        },
+                        "description": "rating_average tidak boleh diisi dari luar. Harus 400.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"course_category_id\": 1,\n  \"title\": \"x\",\n  \"price\": 1000,\n  \"rating_average\": 5\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "POST kategori tidak ada",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course"
+                            ]
+                        },
+                        "description": "Kategori 999 tidak ada di database. Harus 400.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"course_category_id\": 999,\n  \"title\": \"Kelas tanpa kategori\",\n  \"price\": 1000\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "GET kelas yang baru dibuat",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"judul sesuai\", () => pm.expect(pm.response.json().data.title).to.eql(\"Kelas Uji Postman\"));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "Memastikan kelas dari POST benar-benar tersimpan."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3. PATCH (UPDATE)",
+            "item": [
+                {
+                    "name": "PATCH ubah judul dan harga",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"data berubah\", () => { const d = pm.response.json().data; pm.expect(d.title).to.eql(\"Kelas Uji Postman (diubah)\"); pm.expect(d.price).to.eql(99000); });",
+                                    "pm.test(\"tutor tidak ikut berubah\", () => pm.expect(pm.response.json().data.tutors.length).to.eql(2));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "Mengubah sebagian data. Field yang tidak dikirim tidak berubah.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Kelas Uji Postman (diubah)\",\n  \"price\": 99000\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "PATCH ganti tutor",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"hanya 1 tutor\", () => pm.expect(pm.response.json().data.tutors.length).to.eql(1));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "Mengganti daftar tutor menjadi satu tutor.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"tutor_ids\": [\n    2\n  ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "PATCH body kosong",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "Harus 400 karena tidak ada field yang diubah.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "PATCH id tidak ada",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/999999",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "999999"
+                            ]
+                        },
+                        "description": "Harus 404.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"x\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "PATCH harga salah tipe",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "price berupa teks. Harus 400.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"price\": \"gratis\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "4. DELETE",
+            "item": [
+                {
+                    "name": "DELETE kelas",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                                    "pm.test(\"ada pesan berhasil\", () => pm.expect(pm.response.json().message).to.include(\"berhasil\"));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "Menghapus kelas yang dibuat saat pengujian."
+                    }
+                },
+                {
+                    "name": "DELETE kelas yang sama lagi",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "Sudah terhapus, jadi harus 404."
+                    }
+                },
+                {
+                    "name": "GET kelas yang sudah dihapus",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/{{createdId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "{{createdId}}"
+                            ]
+                        },
+                        "description": "Memastikan data benar-benar hilang. Harus 404."
+                    }
+                },
+                {
+                    "name": "DELETE id bukan angka",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/course/abc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "course",
+                                "abc"
+                            ]
+                        },
+                        "description": "Harus 400."
+                    }
+                }
+            ]
+        }
+    ]
+}
