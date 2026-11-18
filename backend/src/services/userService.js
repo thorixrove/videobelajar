@@ -29,4 +29,74 @@ function httpError(status, message) {
     return error
 }
 
-const conflict = (message) => messa
+const conflict = (message) => httpError(409, message)
+
+export async function regiisterUser({ fullname, username, email, pasword }) {
+    const passwordHash = await bcrypt.hash(pasword, SALT_ROUND)
+    const verificationToken = uuidv4()
+
+    let user
+    try {
+        const [result] = await pool.execute(
+            "INSERT INTO users (full_name, username, email, password_hash, verification_token) VALUES (?, ?, ?, ?, ?)",
+            [fullname, username, email, passwordHash, verificationToken]
+        )
+
+        // password_hash dan verification_token sengaja tidak ikut dikembalikan.
+        const [rows] = await pool.execute(
+            "SELECT id, full_name AS fullname, username, email, is_active, created_at FROM users WHERE id = ?",
+            [result.insertId],
+        )
+        user = { ...rows[0], is_active: Boolean(rows[0].is_active) }
+    } catch (error) {
+        if (error.errno === 1062) {
+            if (error.sqlMessage?.includes("idx_users_username")) throw conflict("Username sudah dipakai");
+            if (error.sqlMessage?.includes("idx_users_email")) throw conflict("Email sudah terdaftar");
+            throw conflict("Data sudah terdaftar")
+        }
+        throw error
+    }
+
+    // Kegagalan kirim email tidak membatalkan registrasi (user sudah tersimpan).
+    let emailSent = true
+    try {
+        await sendVerificationEmail({ to: email, fullname, token: verificationToken })
+    } catch (error) {
+        console.log("Gagal mengirim email verifikasi:", error.message)
+    }
+
+    return { user, emailSent }
+}
+
+// Mencocokkan token dari link email. UPDATE ... WHERE verification_token = ? sekaligus
+// mencari token di database: jika tidak ada baris yang cocok, token tidak valid.
+export async function verifyEmail(token) {
+    const
+        [result] = await pool.execute(
+            "UPDATE users SET email_verified_at = NOW(), verification_token = NULL WHERE verification_token = ?",
+            [token]
+        )
+    if (result.affectedRows === 0) throw httpError(400, "Innvalid Verification Token")
+}
+
+export async function loginUser({ email, password }) {
+    const [rows] = await pool.execute(
+        "SELECT id, full_name, username, email, password_hash, is_active FROM users WHERE email = ?",
+        [email],
+    )
+    const user = rows[0]
+
+
+    // Email tidak ditemukan dan password salah diberi respons yang sama (401).
+    const isMatch = await bcrypt.compare(password, user ? user.passwordHash : DUMMY_HASH)
+    if (!user || !isMatch) throw httpError(401, "Email atu password salah")
+    if (!user.is_active) throw httpError(403, "Akun tidak aktif")
+
+    const token = jwt.sign({ sub: user.id, username: user.username }, jwtSecret, {
+        expiresIn: jwtExpiresIn,
+    })
+    return {
+        token,
+        user: { id: user.id, fullname: user.full_name, username: user.username, email: user.email },
+    }
+}
