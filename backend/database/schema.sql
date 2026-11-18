@@ -34,10 +34,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE users (
   id                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   full_name           VARCHAR(100)    NOT NULL,
+  username            VARCHAR(50)     NOT NULL,
   email               VARCHAR(255)    NOT NULL,
-  gender              ENUM('female','male') NOT NULL,
-  phone_country_code  VARCHAR(5)      NOT NULL,
-  phone_number        VARCHAR(15)     NOT NULL,
+  gender              ENUM('female','male') NULL DEFAULT NULL,
+  phone_country_code  VARCHAR(5)      NULL DEFAULT NULL,
+  phone_number        VARCHAR(15)     NULL DEFAULT NULL,
   password_hash       VARCHAR(255)    NOT NULL,
   avatar_url          VARCHAR(500)    NULL DEFAULT NULL,
   google_id           VARCHAR(64)     NULL DEFAULT NULL,
@@ -46,6 +47,7 @@ CREATE TABLE users (
   updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY idx_users_email (email),
+  UNIQUE KEY idx_users_username (username),
   UNIQUE KEY idx_users_google_id (google_id),
   UNIQUE KEY idx_users_phone (phone_country_code, phone_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
