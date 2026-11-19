@@ -1,10 +1,15 @@
 import { Router } from "express";
 import * as courseService from "../services/courseService.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { validateCourse } from "../validators/courseValidator.js";
+import { validateCourse, validateCourseQuery } from "../validators/courseValidator.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
 
+// Semua endpoint di bawah ini membutuhkan header: Authorization: Bearer <token>
 // =====================================================================
-//   GET    /course        -> semua kelas (bisa difilter ?category_id= dan ?keyword=)
+//   GET    /course        -> semua kelas, dengan query params (semua opsional):
+//                            filter: ?category_id= &language= &min_price= &max_price=
+//                            search: ?keyword=
+//                            sort  : ?sort_by=title|price|rating_average|duration_minutes|created_at &order=asc|desc
 //   GET    /course/:id    -> satu kelas berdasarkan id
 //   POST   /course        -> tambah kelas       (service addCourse)
 //   PATCH  /course/:id    -> ubah kelas by id   (service updateCourse)
@@ -24,36 +29,13 @@ const notFound = (id) => ({ message: `Kelas dengan id ${id} tidak ditemukan` })
 
 router.get(
     "/",
+    verifyToken,
     asyncHandler(async (req, res) => {
-        const { category_id: categoryParams, keyword: keywordParam } = req.query
 
-        let categoryId = null
-        if (categoryParams !== undefined) {
-            categoryId = parseId(String(categoryParams))
-            if (categoryId === null) {
-                return res.status(400).json({ message: "category_id harus berupa bilangan bulat positif" })
-            }
-        }
+        const { errors, filters } = validateCourseQuery(req.query)
+        if (errors.length > 0) return res.status(400).json({ message: "Query params tidak valid", errors })
 
-        let keyword = null
-        if (keywordParam !== undefined) {
-            keyword = String(keywordParam).trim()
-            if (keyword === "" || keyword.length > 100) {
-                return res.status(400).json({ message: "keyword harus berisi 1 sampai 100 karakter" })
-            }
-        }
-
-        let courses
-        if (keyword !== null) {
-            courses = await courseService.searchCoursesByTitle(keyword)
-            if (categoryId !== null) {
-                courses = courses.filter((course) => course.course_category_id === categoryId)
-            }
-        } else if (categoryId !== null) {
-            courses = await courseService.getCoursesByCategory(categoryId)
-        } else {
-            courses = await courseService.getAllCourses()
-        }
+        const courses = await courseService.getAllCourses(filters)
         res.json({ message: "Berhasil mengambil data kelas", total: courses.length, data: courses })
     }),
 )
@@ -61,6 +43,7 @@ router.get(
 
 router.get(
     "/:id",
+    verifyToken,
     asyncHandler(async (req, res) => {
         const id = parseId(req.params.id)
         if (id === null) return res.status(400).json({ message: "id harus berupa bilangan bulat positif" })
@@ -75,6 +58,7 @@ router.get(
 
 router.post(
     "/",
+    verifyToken,
     asyncHandler(async (req, res) => {
         const { errors, data } = validateCourse(req.body)
         if (errors.length > 0) return res.status(400).json({ message: "Data tidak valid", errors })
@@ -86,6 +70,7 @@ router.post(
 
 router.patch(
     "/:id",
+    verifyToken,
     asyncHandler(async (req, res) => {
         const id = parseId(req.params.id)
         if (id === null) return res.status(400).json({ message: "id harus beruppa bilanagn bulat positif" })
@@ -102,6 +87,7 @@ router.patch(
 
 router.delete(
     "/:id",
+    verifyToken,
     asyncHandler(async (req, res) => {
         const id = parseId(req.params.id)
         if (id === null) return res.status(400).json({ message: "id harus berupa bilangan bulat positif" })

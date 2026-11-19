@@ -2,6 +2,9 @@ import "dotenv/config";
 import express from "express";
 import { errorHandler, notFound } from "./middlewares/errorHandler.js";
 import courseRoutes from "./routes/courseRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+import { UPLOAD_DIR } from "./services/uploadService.js";
 
 const app = express();
 
@@ -14,7 +17,12 @@ app.get("/", (req, res) => {
 });
 
 // Semua endpoint kelas ada di bawah /course.
+app.use("/auth", authRoutes);
 app.use("/course", courseRoutes);
+
+// Upload gambar (POST /upload) dan akses file hasil upload (GET /uploads/<nama-file>).
+app.use("/upload", uploadRoutes);
+app.use("/uploads", express.static(UPLOAD_DIR));
 
 // Dua penangan ini harus dipasang paling akhir.
 app.use(notFound);

@@ -1,3 +1,6 @@
 node_modules/
 .env
 npm-debug.log*
+# File hasil upload (folder uploads tetap ada lewat .gitkeep)
+uploads/*
+!uploads/.gitkeep

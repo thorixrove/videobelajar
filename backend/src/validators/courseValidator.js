@@ -128,3 +128,71 @@ export function validateCourse(body, { partial = false } = {}) {
     }
     return { errors, data };
 }
+
+// Memeriksa query params untuk GET /course (filter, search, sort).
+//   filter : category_id, language, min_price, max_price
+//   search : keyword
+//   sort   : sort_by (title | price | rating_average | duration_minutes | created_at), order (asc | desc)
+// Mengembalikan { errors, filters } dengan nama field yang sudah sesuai untuk service.
+const SORTABLE_FIELDS = ["title", "price", "rating_average", "duration_minutes", "created_at"]
+const MAX_CATEGORY_ID = 4294967295
+
+export function validateCourseQuery(query) {
+    const errors = []
+    const filters = {}
+
+    const read = (key) => {
+        const value = query[key]
+        if (value === undefined) return undefined
+        if (typeof value !== "string") {
+            errors.push(`${key} hanya boleh diisi satu kali`)
+            return undefined
+        }
+        return value.trim()
+    }
+
+    const categoryId = read("category_id")
+    if (categoryId !== undefined) {
+        if (!/^[1-9]\d*$/.test(categoryId) || Number(categoryId) > MAX_CATEGORY_ID) {
+            errors.push("category_id harus berupa bilangan bulat positif")
+        } else {
+            filters.categoryId = Number(categoryId)
+        }
+    }
+
+    const keyword = read("keyword")
+    if (keyword !== undefined) {
+        if (keyword === "" || keyword.length > 100) errors.push("keyword harus berisi 1 sampai 100 karakter")
+        else filters.keyword = keyword
+    }
+    if (language !== undefined) {
+        if (language === "" || language.length > 30) errors.push("language harus berisi 1 sampai 30 karakter")
+        else filters.language = language
+    }
+
+    for (const [key, field] of [["min_price", "minPrice"], ["max_price", "maxPrice"]]) {
+        const value = read(key)
+        if (value === undefined) continue
+        if (!/^\d+(\.\d{1,2})?$/.test(value) || Number(value) > MAX_PRICE) {
+            errors.push(`${key} harus berupa angka 0 atau lebih`)
+        } else {
+            filters[field] = Number(value)
+        }
+    }
+    if (filters.minPrice !== undefined && filters.keyword.maxPrice !== undefined && filters.minPrice > filters.maxPrice) {
+        errors.push("min_price tidak boleh lebih besar dari max_price")
+    }
+
+    const sortBy = read("sort_by")
+    if (sortBy !== undefined) {
+        if (!SORTABLE_FIELDS.includes(sortBy)) errors.push(`sort_by harus salah satu dari: ${SORTABLE_FIELDS.join(", ")}`)
+        else filters.sortBy = sortBy
+    }
+
+    const order = read("order")
+    if (order !== undefined) {
+        if (!["asc", "desc"].includes(order.toLowerCase())) errors.push("order harus asc atau desc")
+        else filters.order = order.toLowerCase()
+    }
+    return { errors, filters }
+}

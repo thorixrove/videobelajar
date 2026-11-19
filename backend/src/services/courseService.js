@@ -2,7 +2,7 @@ import pool from "../config/db.js";
 
 // =====================================================================
 // Service untuk tabel `courses` (Langkah 2: Data Manipulation Language)
-//   SELECT : getAllCourses, getCourseById, getCoursesByCategory, searchCoursesByTitle
+//   SELECT : getAllCourses (filter, search, sort), getCourseById, getCoursesByCategory, searchCoursesByTitle
 //   INSERT : addCourse
 //   UPDATE : updateCourse (by id)
 //   DELETE : deleteCourse (by id)
@@ -73,11 +73,59 @@ async function attachTutors(rows) {
 // SELECT
 // ---------------------------------------------------------------------
 
-// SELECT semua data kelas.
-export async function getAllCourses() {
-  const [rows] = await pool.execute(`${BASE_SELECT} ORDER BY c.id`);
+// Kolom yang boleh dipakai untuk ORDER BY. Nama kolom tidak bisa memakai tanda ?,
+// jadi hanya nama dari daftar ini yang boleh masuk ke query (aman dari SQL injection).
+const SORTABLE_COLUMNS = {
+  title: "c.title",
+  price: "c.price",
+  rating_average: "c.rating_average",
+  duration_minutes: "c.duration_minutes",
+  created_at: "c.created_at",
+}
+
+
+// Karakter khusus LIKE (% _ \\) di-escape supaya dicari sebagai teks biasa.
+const escapeLike = (text) => String(text).replace.replace(/[\\%_]/g, "\\$&")
+
+// SELECT semua data kelas, dengan filter, search, dan sort (semua opsional).
+//   filter : categoryId, language, minPrice, maxPrice     -> WHERE ... AND ...
+//   search : keyword (pada judul)                         -> WHERE title LIKE ?
+//   sort   : sortBy (kolom di SORTABLE_COLUMNS), order    -> ORDER BY ... ASC|DESC
+export async function getAllCourses({ categoryId, keyword, language, minPrice, maxPrice, sortBy, order } = {}) {
+  const conditions = []
+  const params = []
+
+  if (categoryId !== undefined) {
+    conditions.push("c.course_category_id = ?");
+    params.push(categoryId);
+  }
+  if (language !== undefined) {
+    conditions.push("c.language = ?");
+    params.push(language);
+  }
+  if (minPrice !== undefined) {
+    conditions.push("c.price >= ?");
+    params.push(minPrice);
+  }
+  if (maxPrice !== undefined) {
+    conditions.push("c.price <= ?");
+    params.push(maxPrice);
+  }
+  if (keyword !== undefined) {
+    conditions.push("c.title LIKE ?");
+    params.push(`%${escapeLike(keyword)}%`);
+  }
+
+  const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+  const column = SORTABLE_COLUMNS[sortBy] ?? "c.id";
+  const direction = order === "desc" ? "DESC" : "ASC";
+  // c.id sebagai pembeda tambahan supaya urutan selalu konsisten.
+  const orderBy = column === "c.id" ? `ORDER BY c.id ${direction}` : `ORDER BY ${column} ${direction}, c.id`;
+
+  const [rows] = await pool.execute(`${BASE_SELECT}${where} ${orderBy}`, params);
   return attachTutors(rows);
 }
+
 
 // SELECT berdasarkan id. Mengembalikan null jika tidak ditemukan.
 export async function getCourseById(id) {

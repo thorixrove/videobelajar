@@ -26,6 +26,17 @@ export function errorHandler(error, req, res, next) {
     return res.status(413).json({ message: "Body terlalu besar" });
   }
 
+  // Error dari multer (upload file).
+  if (error.name === "MulterError") {
+    if (error.code === "LIMIT_FILE_SIZE") return res.status(413).json({ message: "Ukuran file maksimal 2 MB" });
+    return res.status(400).json({ message: "Upload gagal: kirim satu file pada field 'image'" });
+  }
+
+  // Error yang sengaja dilempar service dengan status dan pesan untuk client.
+  if (error.expose && error.status) {
+    return res.status(error.status).json({ message: error.message })
+  }
+
   // Error dari database.
   const mapped = DATABASE_ERRORS[error.errno];
   if (mapped) {
