@@ -26,7 +26,7 @@ function fileFilter(req, file, cb) {
 
     const error = new Error("File harus berupa gambar JPEG, PNG, atau WebP")
     error.status = 400
-    error.exspose = true
+    error.expose = true
     cb(error)
 }
 

@@ -31,8 +31,8 @@ function httpError(status, message) {
 
 const conflict = (message) => httpError(409, message)
 
-export async function regiisterUser({ fullname, username, email, pasword }) {
-    const passwordHash = await bcrypt.hash(pasword, SALT_ROUND)
+export async function registerUser({ fullname, username, email, password }) {
+    const passwordHash = await bcrypt.hash(password, SALT_ROUND)
     const verificationToken = uuidv4()
 
     let user
@@ -76,7 +76,7 @@ export async function verifyEmail(token) {
             "UPDATE users SET email_verified_at = NOW(), verification_token = NULL WHERE verification_token = ?",
             [token]
         )
-    if (result.affectedRows === 0) throw httpError(400, "Innvalid Verification Token")
+    if (result.affectedRows === 0) throw httpError(400, "Invalid Verification Token")
 }
 
 export async function loginUser({ email, password }) {
@@ -88,8 +88,8 @@ export async function loginUser({ email, password }) {
 
 
     // Email tidak ditemukan dan password salah diberi respons yang sama (401).
-    const isMatch = await bcrypt.compare(password, user ? user.passwordHash : DUMMY_HASH)
-    if (!user || !isMatch) throw httpError(401, "Email atu password salah")
+    const isMatch = await bcrypt.compare(password, user ? user.password_hash : DUMMY_HASH)
+    if (!user || !isMatch) throw httpError(401, "Email atau password salah")
     if (!user.is_active) throw httpError(403, "Akun tidak aktif")
 
     const token = jwt.sign({ sub: user.id, username: user.username }, jwtSecret, {

@@ -1,4 +1,4 @@
-import { Router, Router } from "express";
+import { Router } from "express";
 import * as userService from "../services/userService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { validateLogin, validateRegister } from "../validators/userValidator.js";

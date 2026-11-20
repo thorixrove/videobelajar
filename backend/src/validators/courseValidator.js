@@ -165,6 +165,7 @@ export function validateCourseQuery(query) {
         if (keyword === "" || keyword.length > 100) errors.push("keyword harus berisi 1 sampai 100 karakter")
         else filters.keyword = keyword
     }
+    const language = read("language")
     if (language !== undefined) {
         if (language === "" || language.length > 30) errors.push("language harus berisi 1 sampai 30 karakter")
         else filters.language = language
@@ -179,7 +180,7 @@ export function validateCourseQuery(query) {
             filters[field] = Number(value)
         }
     }
-    if (filters.minPrice !== undefined && filters.keyword.maxPrice !== undefined && filters.minPrice > filters.maxPrice) {
+    if (filters.minPrice !== undefined && filters.maxPrice !== undefined && filters.minPrice > filters.maxPrice) {
         errors.push("min_price tidak boleh lebih besar dari max_price")
     }
 
