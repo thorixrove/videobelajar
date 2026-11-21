@@ -30,5 +30,5 @@ function fileFilter(req, file, cb) {
     cb(error)
 }
 
-// Dipakai di route: upload.single("image") menerima satu file pada field "image".
+// Dipakai di route: upload.single("file") menerima satu file pada field "file".
 export const upload = multer({ storage, fileFilter, limits: { fileSize: MAX_FILE_SIZE, files: 1 } });

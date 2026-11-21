@@ -7,9 +7,9 @@ import { verifyToken } from "../middlewares/authMiddleware.js";
 // Semua endpoint di bawah ini membutuhkan header: Authorization: Bearer <token>
 // =====================================================================
 //   GET    /course        -> semua kelas, dengan query params (semua opsional):
-//                            filter: ?category_id= &language= &min_price= &max_price=
-//                            search: ?keyword=
-//                            sort  : ?sort_by=title|price|rating_average|duration_minutes|created_at &order=asc|desc
+//                            filter: ?topic= &language= &minPrice= &maxPrice=
+//                            search: ?search=
+//                            sort  : ?sortBy=title|price|rating_average|duration_minutes|created_at &order=asc|desc
 //   GET    /course/:id    -> satu kelas berdasarkan id
 //   POST   /course        -> tambah kelas       (service addCourse)
 //   PATCH  /course/:id    -> ubah kelas by id   (service updateCourse)

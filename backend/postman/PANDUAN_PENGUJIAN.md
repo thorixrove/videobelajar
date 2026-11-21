@@ -33,7 +33,7 @@ karena kelas yang dibuat akan dihapus lagi di akhir.
 |---|---|---|---|
 | 1. GET | GET semua kelas | 200 | Daftar kelas, lengkap dengan kategori dan tutor |
 | | GET kelas berdasarkan id | 200 | Satu kelas (`/course/1`) |
-| | GET filter kategori | 200 | Semua hasil berkategori 1 |
+| | GET filter kategori | 200 | Semua hasil bertopik Pemasaran |
 | | GET cari judul | 200 | Semua judul memuat kata "Marketing" |
 | | GET id tidak ada | 404 | Pesan "tidak ditemukan" |
 | | GET id bukan angka | 400 | Id tidak valid ditolak |

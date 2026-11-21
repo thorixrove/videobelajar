@@ -87,7 +87,7 @@
                                 "type": "text/javascript",
                                 "exec": [
                                     "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                                    "pm.test(\"semua kelas berkategori 1\", () => pm.response.json().data.forEach((c) => pm.expect(c.course_category_id).to.eql(1)));"
+                                    "pm.test(\"semua kelas bertopik Pemasaran\", () => pm.response.json().data.forEach((c) => pm.expect(c.category_name).to.eql(\"Pemasaran\")));"
                                 ]
                             }
                         }
@@ -96,7 +96,7 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/course?category_id=1",
+                            "raw": "{{baseUrl}}/course?topic=Pemasaran",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -105,12 +105,12 @@
                             ],
                             "query": [
                                 {
-                                    "key": "category_id",
-                                    "value": "1"
+                                    "key": "topic",
+                                    "value": "Pemasaran"
                                 }
                             ]
                         },
-                        "description": "Filter kelas berdasarkan kategori (atribut lain)."
+                        "description": "Filter kelas berdasarkan topik (nama kategori)."
                     }
                 },
                 {
@@ -131,7 +131,7 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/course?keyword=Marketing",
+                            "raw": "{{baseUrl}}/course?search=Marketing",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -140,7 +140,7 @@
                             ],
                             "query": [
                                 {
-                                    "key": "keyword",
+                                    "key": "search",
                                     "value": "Marketing"
                                 }
                             ]

@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 // Semua endpoint kelas ada di bawah /course.
-app.use("/auth", authRoutes);
+app.use("/", authRoutes);
 app.use("/course", courseRoutes);
 
 // Upload gambar (POST /upload) dan akses file hasil upload (GET /uploads/<nama-file>).

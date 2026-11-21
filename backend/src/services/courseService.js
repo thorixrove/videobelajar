@@ -88,17 +88,18 @@ const SORTABLE_COLUMNS = {
 const escapeLike = (text) => String(text).replace.replace(/[\\%_]/g, "\\$&")
 
 // SELECT semua data kelas, dengan filter, search, dan sort (semua opsional).
-//   filter : categoryId, language, minPrice, maxPrice     -> WHERE ... AND ...
-//   search : keyword (pada judul)                         -> WHERE title LIKE ?
+//   filter : topic (nama kategori), language, minPrice, maxPrice -> WHERE ... AND ...
+//   search : search (pada judul)                          -> WHERE title LIKE ?
 //   sort   : sortBy (kolom di SORTABLE_COLUMNS), order    -> ORDER BY ... ASC|DESC
-export async function getAllCourses({ categoryId, keyword, language, minPrice, maxPrice, sortBy, order } = {}) {
+export async function getAllCourses({ topic, search, language, minPrice, maxPrice, sortBy, order } = {}) {
   const conditions = []
   const params = []
 
-  if (categoryId !== undefined) {
-    conditions.push("c.course_category_id = ?");
-    params.push(categoryId);
+  if (topic !== undefined) {
+    conditions.push("cc.name = ?");
+    params.push(topic);
   }
+
   if (language !== undefined) {
     conditions.push("c.language = ?");
     params.push(language);
@@ -111,9 +112,9 @@ export async function getAllCourses({ categoryId, keyword, language, minPrice, m
     conditions.push("c.price <= ?");
     params.push(maxPrice);
   }
-  if (keyword !== undefined) {
+  if (search !== undefined) {
     conditions.push("c.title LIKE ?");
-    params.push(`%${escapeLike(keyword)}%`);
+    params.push(`%${escapeLike(search)}%`);
   }
 
   const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";

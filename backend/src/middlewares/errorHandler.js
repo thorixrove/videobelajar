@@ -29,7 +29,7 @@ export function errorHandler(error, req, res, next) {
   // Error dari multer (upload file).
   if (error.name === "MulterError") {
     if (error.code === "LIMIT_FILE_SIZE") return res.status(413).json({ message: "Ukuran file maksimal 2 MB" });
-    return res.status(400).json({ message: "Upload gagal: kirim satu file pada field 'image'" });
+    return res.status(400).json({ message: "Upload gagal: kirim satu file pada field 'file'" });
   }
 
   // Error yang sengaja dilempar service dengan status dan pesan untuk client.

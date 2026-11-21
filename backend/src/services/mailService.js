@@ -30,7 +30,7 @@ function getTransporter() {
 // Menyusun isi email verifikasi (dipisah dari pengiriman supaya mudah diuji).
 export function buildVerificationMail({ to, fullname, token }) {
     const baseUrl = (process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, "")
-    const link = `${baseUrl}/auth/verifikasi-email?token=${encodeURIComponent(token)}`;
+    const link = `${baseUrl}/verify-email?token=${encodeURIComponent(token)}`;
 
     return {
         from: process.env.MAIL_FROM || process.env.SMTP_USER,
