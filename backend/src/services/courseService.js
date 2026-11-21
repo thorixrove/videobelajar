@@ -85,7 +85,7 @@ const SORTABLE_COLUMNS = {
 
 
 // Karakter khusus LIKE (% _ \\) di-escape supaya dicari sebagai teks biasa.
-const escapeLike = (text) => String(text).replace.replace(/[\\%_]/g, "\\$&")
+const escapeLike = (text) => String(text).replace(/[\\%_]/g, "\\$&")
 
 // SELECT semua data kelas, dengan filter, search, dan sort (semua opsional).
 //   filter : topic (nama kategori), language, minPrice, maxPrice -> WHERE ... AND ...
