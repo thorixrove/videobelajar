@@ -1,24 +1,16 @@
 import { Router } from "express";
+import * as uploadController from "../controllers/uploadController.js";
 import { verifyToken } from "../middlewares/authMiddleware.js";
 import { upload } from "../services/uploadService.js";
 
 // =====================================================================
 //   POST /upload -> unggah satu gambar (form-data, field: file)
 //   Membutuhkan header: Authorization: Bearer <token>
+// Urutan: verifyToken -> multer (simpan file) -> controller (kirim respons)
 // =====================================================================
 
-const router = Router()
+const router = Router();
 
-router.post("/", verifyToken, upload.single("file"), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: "File gambar wajib diunggah pada field 'file'" })
-    }
+router.post("/", verifyToken, upload.single("file"), uploadController.uploadFile);
 
-    const { filename, mimeType, size } = req.file
-    res.status(201).json({
-        message: 'Upload berhasil',
-        data: { filename, mimeType, size, url: `/uploads/${filename}` }
-    })
-})
-
-export default router
+export default router;
