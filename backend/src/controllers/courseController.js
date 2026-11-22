@@ -20,7 +20,7 @@ const notFound = (id) => ({ message: `Kelas dengan id ${id} tidak ditemukan` })
 // GET /course -> semua kelas, dengan filter, search, dan sort dari query params.
 export const getList = asyncHandler(async (req, res) => {
     const { errors, filters } = validateCourseQuery(req.query)
-    if (errors.length > 0) return res.status(400).json * { message: "Query params tidak valid", errors }
+    if (errors.length > 0) return res.status(400).json({ message: "Query params tidak valid", errors })
 
     const courses = await courseService.getAllCourses(filters)
     res.json({ message: "Berhasil mengambil data kelas", total: courses.length, data: courses })
@@ -29,12 +29,21 @@ export const getList = asyncHandler(async (req, res) => {
 // GET /course/:id -> satu kelas berdasarkan id.
 export const getById = asyncHandler(async (req, res) => {
     const id = parseId(req.params.id)
-    if (id === null) return res.status(400).json({ message: "id harus berupa bilnagan bulat positif" })
+    if (id === null) return res.status(400).json({ message: "id harus berupa bilangan bulat positif" })
 
     const course = await courseService.getCourseById(id)
     if (!course) return res.status(404).json(notFound(id))
 
     res.json({ message: "Berhasil mengambil data kelas", data: course })
+})
+
+// POST /course -> tambah kelas.
+export const create = asyncHandler(async (req, res) => {
+    const { errors, data } = validateCourse(req.body)
+    if (errors.length > 0) return res.status(400).json({ message: "Data tidak valid", errors })
+
+    const course = await courseService.addCourse(data)
+    res.status(201).json({ message: "Kelas berhasil ditambahkan", data: course })
 })
 
 // PATCH /course/:id -> ubah kelas berdasarkan id.
